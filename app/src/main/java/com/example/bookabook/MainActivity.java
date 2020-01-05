@@ -2,11 +2,15 @@ package com.example.bookabook;
 
 import android.os.Bundle;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.example.bookabook.ui.myCart.MyCartFragment;
+import com.example.bookabook.ui.Singleton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.util.Log;
 import android.view.View;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -19,9 +23,11 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.view.Menu;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import static com.example.bookabook.ui.Singleton.getInstance;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,42 +46,39 @@ public class MainActivity extends AppCompatActivity {
         // menu should be considered as top level destinations.
 
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow,
-                R.id.nav_tools, R.id.nav_share, R.id.nav_send)
+                R.id.nav_home, R.id.nav_gallery, R.id.nav_mycart,
+                 R.id.nav_login, R.id.nav_register)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-//        FIND BOOK
-//        final EditText book = findViewById(R.id.et_SearchBook);
-//        Button searchButton = findViewById(R.id.b_searchBook);
-//
-//        searchButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (book.getText().toString().isEmpty()) {
-//                    Snackbar.make(view, "Please insert a book", Snackbar.LENGTH_LONG);
-//                } else {
-////                    getMenuInflater().inflate(R.menu.main, menu);
-//                }
-//
-//            }
-//        });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
 
     @Override
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+    public void putBookInCard(View view) {
+        LinearLayout vwParentRow = (LinearLayout)view.getParent();
+
+        TextView book = (TextView)vwParentRow.getChildAt(1);
+        Snackbar.make(view, book.getText().toString() + " has been added to the cart", Snackbar.LENGTH_LONG).show();
+
+        getInstance().book = book.getText().toString();
+
+        TextView emailHeader = findViewById(R.id.tv_emailHeader);
+        emailHeader.setText(getInstance().username);
+
+        Fragment fragment = new MyCartFragment();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.nav_host_fragment, fragment);
+        fragmentTransaction.commit();
+
     }
 }
